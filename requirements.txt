@@ -1,0 +1,4 @@
+openai-agents
+gradio
+litellm
+mysql-connector-python
