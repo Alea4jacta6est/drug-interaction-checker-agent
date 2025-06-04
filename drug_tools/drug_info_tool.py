@@ -1,7 +1,6 @@
-import pandas as pd
 from agents import function_tool
-
-SINGLE_DRUG_DATA = 'data/Data Record 3 - Single-drug ADRs, indications and negative controls.xlsx'
+from drug_tools.data_sources import SINGLE_DRUG_DATA
+from drug_tools.utils import load_excel
 
 
 @function_tool
@@ -16,10 +15,14 @@ def get_drug_indications(drug: str):
     """
     print(f"Getting indications for {drug}")
 
-    data = pd.read_excel('data/Data Record 3 - Single-drug ADRs, indications and negative controls.xlsx', sheet_name="Tab1 - Positive")
-    drug_indications = data[(data['DRUG_CONCEPT_NAME'].str.lower() == drug.lower()) & (data['EVENT_TYPE'] == 'Indication')].rename(columns={"EVENT_CONCEPT_NAME": "INDICATION"})
-
-    return drug_indications[["DRUG_CONCEPT_NAME", "INDICATION"]]
+    df = load_excel(SINGLE_DRUG_DATA, "Tab1 - Positive")
+    filtered = df[
+        (df['DRUG_CONCEPT_NAME'].str.lower() == drug.lower()) &
+        (df['EVENT_TYPE'] == 'Indication')
+    ]
+    return filtered.rename(columns={"EVENT_CONCEPT_NAME": "INDICATION"})[
+        ["DRUG_CONCEPT_NAME", "INDICATION"]
+    ]
 
 @function_tool
 def get_drug_adverse_effects(drug: str):
@@ -31,10 +34,14 @@ def get_drug_adverse_effects(drug: str):
     """
     print(f"Getting adverse effects for {drug}")
 
-    data = pd.read_excel('data/Data Record 3 - Single-drug ADRs, indications and negative controls.xlsx', sheet_name="Tab1 - Positive")
-    drug_indications = data[(data['DRUG_CONCEPT_NAME'].str.lower() == drug.lower()) & (data['EVENT_TYPE'] == 'Adverse event')].rename(columns={"EVENT_CONCEPT_NAME": "ADVERSE_EFFECT"})
-
-    return drug_indications[["DRUG_CONCEPT_NAME", "ADVERSE_EFFECT"]]
+    df = load_excel(SINGLE_DRUG_DATA, "Tab1 - Positive")
+    filtered = df[
+        (df['DRUG_CONCEPT_NAME'].str.lower() == drug.lower()) &
+        (df['EVENT_TYPE'] == 'Adverse event')
+    ]
+    return filtered.rename(columns={"EVENT_CONCEPT_NAME": "ADVERSE_EFFECT"})[
+        ["DRUG_CONCEPT_NAME", "ADVERSE_EFFECT"]
+    ]
 
 @function_tool
 def get_negative_effects(drug: str, effects: str):
@@ -46,9 +53,13 @@ def get_negative_effects(drug: str, effects: str):
 
     Use this to confirm the absence of a link between a drug and a suspected effect.
     """
-    print(f"Getting links between {drug} and {effects}")
+    print(f"Getting negative effects for {drug} and {effects}")
 
-    data = pd.read_excel('data/Data Record 3 - Single-drug ADRs, indications and negative controls.xlsx', sheet_name="Tab2 - Negative")
-    no_links = data[(data['DRUG_CONCEPT_NAME'].str.lower() == drug.lower()) & (data["EVENT_CONCEPT_NAME"].str.lower() == effects.lower())].rename(columns={"EVENT_CONCEPT_NAME": "NO_LINK"})
-
-    return no_links[["DRUG_CONCEPT_NAME", "NO_LINK"]]
+    df = load_excel(SINGLE_DRUG_DATA, "Tab2 - Negative")
+    filtered = df[
+        (df['DRUG_CONCEPT_NAME'].str.lower() == drug.lower()) &
+        (df['EVENT_CONCEPT_NAME'].str.lower() == effects.lower())
+    ]
+    return filtered.rename(columns={"EVENT_CONCEPT_NAME": "NO_LINK"})[
+        ["DRUG_CONCEPT_NAME", "NO_LINK"]
+    ]

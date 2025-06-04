@@ -1,9 +1,7 @@
-import pandas as pd
-
 from agents import function_tool
+from drug_tools.data_sources import DRUG_TO_DRUG_POSITIVE, DRUG_TO_DRUG_NEGATIVE
+from drug_tools.utils import load_excel
 
-DRUG_TO_DRUG_POSITIVE = 'data/Data Record 1 - Positive Controls.xlsx'
-DRUG_TO_DRUG_NEGATIVE = 'data/Data Record 2 - Negative Controls.xlsx'
 
 @function_tool
 def get_positive_interactions(drug1: str, drug2: str):
@@ -17,10 +15,17 @@ def get_positive_interactions(drug1: str, drug2: str):
     """
     print(f"Getting positive effects between {drug1} and {drug2}")
 
-    data = pd.read_excel('data/Data Record 1 - Positive Controls.xlsx')
-    pos_effects = data[(data['DRUG_1_CONCEPT_NAME'].str.lower() == drug1.lower()) & (data["DRUG_2_CONCEPT_NAME"].str.lower() == drug2.lower())].rename(columns={"EVENT_CONCEPT_NAME": "LINKED_EFFECT", "ANSM_SEV_LEVEL": "SEVERITY_LEVEL"})
-
-    return pos_effects[["DRUG_1_CONCEPT_NAME", "DRUG_2_CONCEPT_NAME", "LINKED_EFFECT", "SEVERITY_LEVEL"]]
+    df = load_excel(DRUG_TO_DRUG_POSITIVE)
+    filtered = df[
+        (df['DRUG_1_CONCEPT_NAME'].str.lower() == drug1.lower()) &
+        (df['DRUG_2_CONCEPT_NAME'].str.lower() == drug2.lower())
+    ]
+    return filtered.rename(columns={
+        "EVENT_CONCEPT_NAME": "LINKED_EFFECT",
+        "ANSM_SEV_LEVEL": "SEVERITY_LEVEL"
+    })[
+        ["DRUG_1_CONCEPT_NAME", "DRUG_2_CONCEPT_NAME", "LINKED_EFFECT", "SEVERITY_LEVEL"]
+    ]
 
 @function_tool
 def get_negative_interactions(drug1: str, drug2: str):
@@ -34,7 +39,11 @@ def get_negative_interactions(drug1: str, drug2: str):
     """
     print(f"Getting negative effects between {drug1} and {drug2}")
 
-    data = pd.read_excel("data/Data Record 2 - Negative Controls.xlsx")
-    neg_effects = data[(data['DRUG_1_CONCEPT_NAME'].str.lower() == drug1.lower()) & (data["DRUG_2_CONCEPT_NAME"].str.lower() == drug2.lower())].rename(columns={"EVENT_CONCEPT_NAME": "NO_LINK"})
-
-    return neg_effects[["DRUG_1_CONCEPT_NAME", "DRUG_2_CONCEPT_NAME", "NO_LINK"]]
+    df = load_excel(DRUG_TO_DRUG_NEGATIVE)
+    filtered = df[
+        (df['DRUG_1_CONCEPT_NAME'].str.lower() == drug1.lower()) &
+        (df['DRUG_2_CONCEPT_NAME'].str.lower() == drug2.lower())
+    ]
+    return filtered.rename(columns={"EVENT_CONCEPT_NAME": "NO_LINK"})[
+        ["DRUG_1_CONCEPT_NAME", "DRUG_2_CONCEPT_NAME", "NO_LINK"]
+    ]

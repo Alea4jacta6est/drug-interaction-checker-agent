@@ -1,15 +1,22 @@
 import os
 import asyncio
+from dotenv import load_dotenv
+
 from agents import Agent, Runner, function_tool, set_tracing_disabled
 from agents.extensions.models.litellm_model import LitellmModel
 
-#from drug_tools.drug_info_tool import DrugInformationTool
-from drug_tools.drug_info_tool import get_drug_indications, get_drug_adverse_effects, get_negative_effects
-from drug_tools.drug_interaction_tool import get_positive_interactions, get_negative_interactions
+from drug_tools.drug_info_tool import (
+    get_drug_indications,
+    get_drug_adverse_effects,
+    get_negative_effects,
+)
+from drug_tools.drug_interaction_tool import (
+    get_positive_interactions,
+    get_negative_interactions,
+)
 
 from prompts.drug_prompts import drug_assistant_prompt
 
-from dotenv import load_dotenv
 load_dotenv()
 
 mistral_api_key = os.getenv("MISTRAL_API_KEY")
@@ -32,29 +39,28 @@ async def main(api_key: str = mistral_api_key, model: str = "mistral/mistral-lar
         instructions=drug_assistant_prompt,
         model=LitellmModel(model=model, api_key=api_key),
         #tools=[DrugInformationTool.query_drug_data],
-        tools=[get_drug_indications, get_drug_adverse_effects, get_negative_effects, get_positive_interactions, get_negative_interactions],
+        tools=[
+            get_drug_indications,
+            get_drug_adverse_effects,
+            get_negative_effects,
+            get_positive_interactions,
+            get_negative_interactions
+        ],
     )
 
-    result = await Runner.run(agent, "What are the indications for acebutolol?")
-    print(result.final_output)
+    test_queries = [
+        "What are the indications for acebutolol?",
+        "What are the adverse effects for acebutolol?",
+        "Can tamoxifen cause somnolence?",
+        "Is acebutolol prescribed for crohn's disease?",
+        "Is acebutolol used for hypertension?",
+        "Is there a known interaction between timolol and sunitinib",
+        "Is there a known interaction between desmopressin and clopamide",
+    ]
 
-    result = await Runner.run(agent, "What are the adverse effects for acebutolol?")
-    print(result.final_output)
-
-    result = await Runner.run(agent, "Can tamoxifen cause somnolence?")
-    print(result.final_output)
-
-    result = await Runner.run(agent, "Is acebutolol prescribed for crohn's disease?")
-    print(result.final_output)
-
-    result = await Runner.run(agent, "Is acebutolol used for hypertension?")
-    print(result.final_output)
-
-    result = await Runner.run(agent, "Is there a known interaction between timolol and sunitinib")
-    print(result.final_output)
-
-    result = await Runner.run(agent, "Is there a known interaction between desmopressin and clopamide")
-    print(result.final_output)
+    for query in test_queries:
+        result = await Runner.run(agent, query)
+        print(result.final_output)
 
 
 if __name__ == "__main__":
