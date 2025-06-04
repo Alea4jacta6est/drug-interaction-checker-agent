@@ -7,6 +7,8 @@ from agents.extensions.models.litellm_model import LitellmModel
 from drug_tools.drug_info_tool import get_drug_indications, get_drug_adverse_effects, get_negative_effects
 from drug_tools.drug_interaction_tool import get_positive_interactions, get_negative_interactions
 
+from prompts.drug_prompts import drug_assistant_prompt
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -26,14 +28,8 @@ def get_weather(city: str):
 # anthropic/claude-3-5-sonnet-20240620
 async def main(api_key: str = mistral_api_key, model: str = "mistral/mistral-large-latest"):
     agent = Agent(
-        name="Assistant",
-        instructions="""
-            From user input, identify:
-            1. Mentioned drug(s).
-            2. Whether the user is asking about indications, adverse effects, or interactions.
-
-            Use the available tools to retrieve and summarize relevant data. If results are extensive, highlight the most critical information (e.g., severe or common effects). Do not describe tables or internal tool structure. Do not infer unknown connections. Clearly state when no known information exists. Use both positive and negative tools when asked about adverse effects and interactions.
-            """,
+        name="Drug Assistant",
+        instructions=drug_assistant_prompt,
         model=LitellmModel(model=model, api_key=api_key),
         #tools=[DrugInformationTool.query_drug_data],
         tools=[get_drug_indications, get_drug_adverse_effects, get_negative_effects, get_positive_interactions, get_negative_interactions],
