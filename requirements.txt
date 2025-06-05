@@ -2,4 +2,6 @@ openai-agents
 gradio
 litellm
 mysql-connector-python
+openpyxl
+sqlalchemy
 python-dotenv
