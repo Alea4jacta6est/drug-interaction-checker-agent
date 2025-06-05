@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 from agents import Agent, Runner, function_tool, set_tracing_disabled
 from agents.extensions.models.litellm_model import LitellmModel
+from agents.mcp.server import MCPServerStdio, MCPServerStreamableHttp, MCPServerSse
 
 from drug_tools.drug_info_tool import (
     get_drug_indications,
@@ -15,7 +16,7 @@ from drug_tools.drug_interaction_tool import (
     get_negative_interactions,
 )
 
-from prompts.drug_prompts import drug_assistant_prompt
+from prompts.drug_prompts import drug_tools_prompt, drug_mcp_prompt
 
 load_dotenv()
 
@@ -26,19 +27,22 @@ claude_api_key = os.getenv("CLAUDE_API_KEY")
 set_tracing_disabled(disabled=True)
 
 
-@function_tool
-def get_weather(city: str):
-    print(f"[debug] getting weather for {city}")
-    return f"The weather in {city} is sunny."
+mysql_server = MCPServerStdio(
+    params={
+            "command": os.getenv("MYSQL_MCP_COMMAND"),
+            "args": [os.getenv("MYSQL_MCP_ARGS")],
+            "cwd": os.getenv("MYSQL_MCP_CWD"),
+        },
+        name="Healthcare MCP Server"
+    )
 
 
 # anthropic/claude-3-5-sonnet-20240620
-async def main(api_key: str = mistral_api_key, model: str = "mistral/mistral-large-latest"):
+async def main_tools(api_key: str = os.getenv("MISTRAL_API_KEY"), model: str = "mistral/mistral-large-latest"):
     agent = Agent(
         name="Drug Assistant",
-        instructions=drug_assistant_prompt,
+        instructions=drug_tools_prompt,
         model=LitellmModel(model=model, api_key=api_key),
-        #tools=[DrugInformationTool.query_drug_data],
         tools=[
             get_drug_indications,
             get_drug_adverse_effects,
@@ -63,5 +67,20 @@ async def main(api_key: str = mistral_api_key, model: str = "mistral/mistral-lar
         print(result.final_output)
 
 
+async def main_mcp(api_key: str = os.getenv("MISTRAL_API_KEY"), model: str = "mistral/mistral-large-latest"):
+    async with mysql_server as mysql:
+            # Create the agent with the connected servers
+            agent = Agent(
+                name="Assistant",
+                instructions=drug_mcp_prompt,
+                model=LitellmModel(model=model, api_key=api_key),
+                mcp_servers=[mysql],  # pass the live server connections here
+            )
+            print('OBJECT', agent)
+            # Run the agent with a sample query
+            result = await Runner.run(agent, "Can I take desmopressin and clopamide together?")
+            print(result.final_output)
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main_mcp())
