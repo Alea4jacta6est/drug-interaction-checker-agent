@@ -1,0 +1,28 @@
+{
+    "mcpServers": {
+      "whoop": {
+        "command": "/Users/victoria/Code/whoop-mcp-server/venv/bin/python3",
+        "args": [
+          "/Users/victoria/Code/whoop-mcp-server/src/whoop_server.py"
+        ],
+        "cwd": "/Users/victoria/Code/whoop-mcp-server",
+        "env": {
+          "WHOOP_EMAIL": "latyshev.andrey.a@gmail.com",
+          "WHOOP_PASSWORD": "12345678zzAA"
+        },
+        "url": "http://localhost:8000"},
+      "healthcare-mcp-public": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@smithery/cli@latest",
+          "run",
+          "@Cicatriiz/healthcare-mcp-public",
+          "--key",
+          "f6051c74-5061-43d1-a43a-0d0c7afd869c"
+        ],
+        "url": "https://server.smithery.ai/@Cicatriiz/healthcare-mcp-public/mcp?api_key=f6051c74-5061-43d1-a43a-0d0c7afd869c"
+      }
+    }
+  }
+

@@ -2,7 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
 data
+configs/mcp_config.json
+foo_drugs
 notebooks
 # C extensions
 *.so
