@@ -15,7 +15,7 @@ set_tracing_disabled(disabled=True)
 async def main(model: str = "mistral/mistral-large-latest"):
     healthcare_server = MCPServerStreamableHttp(
         params=MCP_CONFIGS["healthcare-mcp-public"], name="Healthcare MCP Server"
-
+    )
     mysql_server = MCPServerStdio(
         params={
                 "command": os.getenv("MYSQL_MCP_COMMAND"),

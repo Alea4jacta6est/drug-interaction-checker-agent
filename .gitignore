@@ -2,9 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.DS_Store
 
 data
-configs/mcp_config.json
+settings/mcp_config.json
 foo_drugs
 notebooks
 # C extensions
