@@ -1,4 +1,3 @@
-import os
 import asyncio
 
 from agents import Agent, Runner, set_tracing_disabled
@@ -16,12 +15,8 @@ async def main(model: str = "mistral/mistral-large-latest"):
         params=MCP_CONFIGS["healthcare-mcp-public"], name="Healthcare MCP Server"
     )
     mysql_server = MCPServerStdio(
-        params={
-                "command": os.getenv("MYSQL_MCP_COMMAND"),
-                "args": [os.getenv("MYSQL_MCP_ARGS")],
-                "cwd": os.getenv("MYSQL_MCP_CWD"),
-            },
-            name="Healthcare MCP Server"
+        params=MCP_CONFIGS["mysql"],
+            name="MySQL MCP Server"
         )
     whoop_server = MCPServerStdio(params=MCP_CONFIGS["whoop"], name="Whoop MCP Server")
 

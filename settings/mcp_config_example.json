@@ -24,12 +24,14 @@
       ]
     },
     "mysql": {
-      "type": "stdio",
-      "command": "uvx",
+      "command": "npx",
       "args": [
-        "--from",
+        "-y",
+        "@smithery/cli@latest",
+        "run",
         "mysql-mcp-server",
-        "mysql_mcp_server"
+        "--key",
+        "your_secret_here"
       ],
       "env": {
         "MYSQL_HOST": "localhost",
