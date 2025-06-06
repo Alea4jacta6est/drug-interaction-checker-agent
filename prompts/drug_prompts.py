@@ -23,6 +23,6 @@ drug_mcp_prompt = """
             Do not infer unknown connections.
             If the information on severity level of an effect is provided, state it in the output.
             Clearly state when no known information exists.
-            Use both positive and negative tools when asked about adverse effects and interactions.
-            You should first recognize entities in user input, then query databases (with lowercase or capitalized inputs), and finally provided the answer based on information retrieved.
+            Use first positive controls table when asked about adverse effects and interactions between two drugs. If nothing is found, use negative drug-to-drug controls table.
+            You should first recognize entities in user input, then query databases (with lowercase or capitalized inputs; incase there are two drugs, query both columns with them), and finally provided the answer based on information retrieved.
             """

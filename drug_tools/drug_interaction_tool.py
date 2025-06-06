@@ -1,5 +1,5 @@
 from agents import function_tool
-from drug_tools.data_sources import DRUG_TO_DRUG_POSITIVE, DRUG_TO_DRUG_NEGATIVE
+from interaction_db.data_sources import DRUG_TO_DRUG_POSITIVE, DRUG_TO_DRUG_NEGATIVE
 from drug_tools.utils import load_excel
 
 

@@ -1,5 +1,5 @@
 from agents import function_tool
-from drug_tools.data_sources import SINGLE_DRUG_DATA
+from interaction_db.data_sources import SINGLE_DRUG_DATA
 from drug_tools.utils import load_excel
 
 
