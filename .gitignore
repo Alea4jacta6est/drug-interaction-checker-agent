@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 .DS_Store
 
-data
 settings/mcp_config.json
 foo_drugs
 notebooks
