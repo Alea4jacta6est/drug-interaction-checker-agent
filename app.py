@@ -1,28 +1,32 @@
 import asyncio
 from agents import Agent, Runner, function_tool, set_tracing_disabled
 from agents.extensions.models.litellm_model import LitellmModel
+from agents.mcp.server import MCPServerStdio, MCPServerStreamableHttp
+
+from config import PROMPT_TEMPLATE, MCP_CONFIGS, MODEL_API_KEY
 
 
 set_tracing_disabled(disabled=True)
 
 
-@function_tool
-def get_weather(city: str):
-    print(f"[debug] getting weather for {city}")
-    return f"The weather in {city} is sunny."
-
-
-# anthropic/claude-3-5-sonnet-20240620
-async def main(api_key: str, model: str = "mistral/mistral-large-latest"):
-    agent = Agent(
-        name="Assistant",
-        instructions="You only respond in haikus about a sunny weather.",
-        model=LitellmModel(model=model, api_key=api_key),
-        tools=[get_weather],
+async def main(model: str = "mistral/mistral-large-latest"):
+    healthcare_server = MCPServerStreamableHttp(
+        params=MCP_CONFIGS["healthcare-mcp-public"], name="Healthcare MCP Server"
     )
+    whoop_server = MCPServerStdio(params=MCP_CONFIGS["whoop"], name="Whoop MCP Server")
 
-    result = await Runner.run(agent, "What's the weather in Paris?")
-    print(result.final_output)
+    async with healthcare_server as hserver, whoop_server as whoop:
+        # Create the agent with the connected servers
+        agent = Agent(
+            name="Assistant",
+            instructions=PROMPT_TEMPLATE,
+            model=LitellmModel(model=model, api_key=MODEL_API_KEY),
+            mcp_servers=[hserver, whoop],
+        )
+
+        # Run the agent with a sample query
+        result = await Runner.run(agent, "what are adverse effects of prozac?")
+        print(result.final_output)
 
 
 if __name__ == "__main__":

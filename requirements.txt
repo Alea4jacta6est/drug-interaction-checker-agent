@@ -1,4 +1,4 @@
-openai-agents
-gradio
-litellm
-mysql-connector-python
+openai-agents==0.0.17
+gradio==5.33.0
+litellm==1.72.1
+smithery==0.1.3
