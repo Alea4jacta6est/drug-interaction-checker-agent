@@ -6,7 +6,7 @@ __pycache__/
 data
 configs/mcp_config.json
 foo_drugs
-
+notebooks
 # C extensions
 *.so
 

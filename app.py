@@ -1,4 +1,7 @@
+import os
 import asyncio
+from dotenv import load_dotenv
+
 from agents import Agent, Runner, function_tool, set_tracing_disabled
 from agents.extensions.models.litellm_model import LitellmModel
 from agents.mcp.server import MCPServerStdio, MCPServerStreamableHttp
@@ -12,7 +15,15 @@ set_tracing_disabled(disabled=True)
 async def main(model: str = "mistral/mistral-large-latest"):
     healthcare_server = MCPServerStreamableHttp(
         params=MCP_CONFIGS["healthcare-mcp-public"], name="Healthcare MCP Server"
-    )
+
+    mysql_server = MCPServerStdio(
+        params={
+                "command": os.getenv("MYSQL_MCP_COMMAND"),
+                "args": [os.getenv("MYSQL_MCP_ARGS")],
+                "cwd": os.getenv("MYSQL_MCP_CWD"),
+            },
+            name="Healthcare MCP Server"
+        )
     whoop_server = MCPServerStdio(params=MCP_CONFIGS["whoop"], name="Whoop MCP Server")
 
     async with healthcare_server as hserver, whoop_server as whoop:
@@ -21,9 +32,8 @@ async def main(model: str = "mistral/mistral-large-latest"):
             name="Assistant",
             instructions=PROMPT_TEMPLATE,
             model=LitellmModel(model=model, api_key=MODEL_API_KEY),
-            mcp_servers=[hserver, whoop],
+            mcp_servers=[hserver, whoop, mysql],
         )
-
         # Run the agent with a sample query
         result = await Runner.run(agent, "what are adverse effects of prozac?")
         print(result.final_output)
