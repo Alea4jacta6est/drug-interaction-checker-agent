@@ -1,79 +1,84 @@
+"""
+app.py
+Gradio UI entry‑point for the WellBe+ Assistant.
+
+This file focuses *exclusively* on building and launching the UI. Business
+logic remains in ``wellbe_agent.py`` so that the web interface stays lean and
+maintainable.
+"""
+
+from __future__ import annotations
 import gradio as gr
-from gradio import ChatMessage
-import time
 
-def generate_response(history):
-    history.append(
-        ChatMessage(
-            role="user", content="What is the weather in San Francisco right now?"
+from wellbe_agent import answer_sync
+
+
+DESCRIPTION_MD = (
+    "# **WellBe+ Assistant**\n\n"
+    "WellBe+ AI Agent is a multi‑context assistant built with the Agents SDK framework "
+    "from OpenAI. It orchestrates **three secure MCP servers**: a public drug‑knowledge FDA "
+    "service, a WHOOP biometric feed, and a MySQL clinical data store.\n\n"
+    "Ask how medications, habits or workouts influence your sleep and recovery – the agent "
+    "combines **medical knowledge** with your **personal Whoop data** to craft evidence‑backed "
+    "answers.\n\n"
+    "## Example questions\n"
+    "- *What are the adverse effects of Prozac?*\n"
+    "- *I started to take Prozac 3 months ago; do you see any trends in my sleep quality and what are its most frequent side‑effects?*\n\n"
+    "## MCP Servers in use\n"
+    "- [Whoop](https://smithery.ai/server/@ctvidic/whoop-mcp-server)\n"
+    "- [Healthcare MCP with PubMed, FDA and other APIs](https://smithery.ai/server/@Cicatriiz/healthcare-mcp-public)\n"
+)
+
+
+def build_interface() -> gr.Blocks:
+    """Construct and return the Gradio interface for the WellBe+ Assistant."""
+    with gr.Blocks(title="WellBe+ Assistant") as app:
+        gr.HTML("<p><img src='file=docs/images/logo.png' style='height:80px'></p>")
+        gr.Markdown(DESCRIPTION_MD)
+
+        with gr.Row():
+            # -----------------------------------------------------------------
+            # Left column – credential inputs
+            # -----------------------------------------------------------------
+            with gr.Column(scale=1):
+                gr.Markdown("### Credentials")
+                openai_key_box = gr.Textbox(
+                    label="OpenAI API Key",
+                    type="password",
+                    placeholder="sk‑…",
+                )
+                whoop_email_box = gr.Textbox(label="Whoop e‑mail")
+                whoop_pass_box = gr.Textbox(label="Whoop password", type="password")
+
+            # -----------------------------------------------------------------
+            # Right column – chat interface
+            # -----------------------------------------------------------------
+            with gr.Column(scale=2):
+                gr.Markdown("### Chat")
+                question_box = gr.Textbox(
+                    label="Question",
+                    lines=3,
+                    placeholder="e.g. How has my sleep changed since starting Prozac?",
+                )
+                answer_box = gr.Textbox(label="Assistant", lines=8, interactive=False)
+                ask_btn = gr.Button("Ask Assistant ▶️", variant="primary")
+                ask_btn.click(
+                    fn=answer_sync,
+                    inputs=[
+                        question_box,
+                        openai_key_box,
+                        whoop_email_box,
+                        whoop_pass_box,
+                    ],
+                    outputs=answer_box,
+                )
+
+        gr.Markdown(
+            "---\nDevelopers: [Natalia B.](https://www.linkedin.com/in/natalia-bobkova/), [Victoria L.](https://www.linkedin.com/in/victoria-latynina/)"
         )
-    )
-    yield history
-    time.sleep(0.25)
-    history.append(
-        ChatMessage(
-            role="assistant",
-            content="In order to find the current weather in San Francisco, I will need to use my weather tool.",
-        )
-    )
-    yield history
-    time.sleep(0.25)
 
-    history.append(
-        ChatMessage(
-            role="assistant",
-            content="API Error when connecting to weather service.",
-            metadata={"title": "💥 Error using tool 'Weather'"},
-        )
-    )
-    yield history
-    time.sleep(0.25)
+    return app
 
-    history.append(
-        ChatMessage(
-            role="assistant",
-            content="I will try again",
-        )
-    )
-    yield history
-    time.sleep(0.25)
-
-    history.append(
-        ChatMessage(
-            role="assistant",
-            content="Weather 72 degrees Fahrenheit with 20% chance of rain.",
-            metadata={"title": "🛠️ Used tool 'Weather'"},
-        )
-    )
-    yield history
-    time.sleep(0.25)
-
-    history.append(
-        ChatMessage(
-            role="assistant",
-            content="Now that the API succeeded I can complete my task.",
-        )
-    )
-    yield history
-    time.sleep(0.25)
-
-    history.append(
-        ChatMessage(
-            role="assistant",
-            content="It's a sunny day in San Francisco with a current temperature of 72 degrees Fahrenheit and a 20% chance of rain. Enjoy the weather!",
-        )
-    )
-    yield history
-
-def like(evt: gr.LikeData):
-    print("User liked the response")
-    print(evt.index, evt.liked, evt.value)
-
-with gr.Blocks() as demo:
-    chatbot = gr.Chatbot(type="messages", height=500, show_copy_button=True)
-    button = gr.Button("Get San Francisco Weather")
-    button.click(generate_response, chatbot, chatbot)
-    chatbot.like(like)
 
 if __name__ == "__main__":
-    demo.launch()
+    build_interface().launch()

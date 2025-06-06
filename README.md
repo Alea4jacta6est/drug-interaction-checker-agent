@@ -19,3 +19,16 @@ If you plan to use our custom database:
 - **Install Docker**: Follow the official guide → [Docker Engine installation](https://docs.docker.com/engine/install/) 
 - **Install Docker Compose**: Follow the plugin guide → [Docker Compose installation](https://docs.docker.com/compose/install/) ￼
 - Run `docker-compose up` in the project directory (make sure data/ folder is not empty)
+- Add credentials
+
+---
+title: WellBe+ Assistant 
+sdk: gradio
+sdk_version: 5.33.0
+app_file: app.py
+pinned: true
+tags:
+- agent-demo-track
+---
+
+Try it on [HuggingFace Spaces](https://huggingface.co/spaces/natasha1704/WellBePlusAssistant)

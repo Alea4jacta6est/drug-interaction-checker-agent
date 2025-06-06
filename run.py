@@ -20,7 +20,10 @@ async def main(model: str = "mistral/mistral-large-latest"):
     #     )
     whoop_server = MCPServerStdio(params=MCP_CONFIGS["whoop"], name="Whoop MCP Server")
 
-    async with healthcare_server as hserver, whoop_server as whoop: # , mysql_server as mysql
+    async with (
+        healthcare_server as hserver,
+        whoop_server as whoop,
+    ):  # , mysql_server as mysql
         # Create the agent with the connected servers
         agent = Agent(
             name="Assistant",
@@ -34,7 +37,10 @@ async def main(model: str = "mistral/mistral-large-latest"):
             ],
         )
         # Run the agent with a sample query
-        result = await Runner.run(agent, "3 months ago I started to take prozac but i have an impression that i sleep worse since that time. could you look at the trends in my whoop data to check this?")
+        result = await Runner.run(
+            agent,
+            "3 months ago I started to take prozac but i have an impression that i sleep worse since that time. could you look at the trends in my whoop data to check this?",
+        )
         print(result.final_output)
 
 
