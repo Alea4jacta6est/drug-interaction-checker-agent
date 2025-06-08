@@ -1,0 +1,45 @@
+{
+  "mcpServers": {
+    "whoop": {
+      "command": "whoop-mcp-server/venv/bin/python3",
+      "args": [
+        "whoop-mcp-server/src/whoop_server.py"
+      ],
+      "cwd": "whoop-mcp-server",
+      "env": {
+        "WHOOP_EMAIL": "your_client_id_here",
+        "WHOOP_PASSWORD": "your_client_secret_here",
+        "WHOOP_CLIENT_ID": "http://localhost:8000/callback"
+      }
+    },
+    "healthcare-mcp-public": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "@Cicatriiz/healthcare-mcp-public",
+        "--key",
+        "your_secret_here"
+      ]
+    },
+    "mysql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli@latest",
+        "run",
+        "mysql-mcp-server",
+        "--key",
+        "your_secret_here"
+      ],
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "your_username",
+        "MYSQL_PASSWORD": "your_password",
+        "MYSQL_DATABASE": "your_database"
+      }
+    }
+  }
+}
