@@ -33,4 +33,4 @@ tags:
 - agent-demo-track
 ---
 
-Try it on [HuggingFace Spaces](https://huggingface.co/spaces/natasha1704/WellBePlusAssistant)
+Try it on [HuggingFace Spaces](https://huggingface.co/spaces/Agents-MCP-Hackathon/WellBePlusAssistant)
