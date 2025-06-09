@@ -24,13 +24,5 @@ If you plan to use our custom database:
 - Add credentials
 
 ---
-title: WellBe+ Assistant 
-sdk: gradio
-sdk_version: 5.33.0
-app_file: app.py
-pinned: true
-tags:
-- agent-demo-track
----
 
 Try it on [HuggingFace Spaces](https://huggingface.co/spaces/Agents-MCP-Hackathon/WellBePlusAssistant)
